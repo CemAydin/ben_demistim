@@ -376,7 +376,7 @@ class FeedState extends AppState {
 
   /// Add/Remove like on a Tweet
   /// [postId] is tweet id, [userId] is user's id who like/unlike Tweet
-  addLikeToTweet(FeedModel tweet, String userId) {
+  addLikeToTweet(FeedModel tweet, String userId,int count) {
     try {
       if (tweet.likeList != null &&
           tweet.likeList.length > 0 &&
@@ -390,7 +390,7 @@ class FeedState extends AppState {
           tweet.likeList = [];
         }
         tweet.likeList.add(userId);
-        tweet.likeCount += 1;
+        tweet.likeCount += count;
       }
       // update likelist of a tweet
       kDatabase
@@ -398,6 +398,11 @@ class FeedState extends AppState {
           .child(tweet.key)
           .child('likeList')
           .set(tweet.likeList);
+      kDatabase
+          .child('tweet')
+          .child(tweet.key)
+          .child('likeCount')
+          .set(tweet.likeCount);
 
       // Sends notification to user who created tweet
       // UserModel owner can see notification on notification page

@@ -57,11 +57,11 @@ class _FeedPostDetailState extends State<FeedPostDetail> {
     );
   }
 
-  void addLikeToComment(String commentId) {
-    var state = Provider.of<FeedState>(context, listen: false);
-    var authState = Provider.of<AuthState>(context, listen: false);
-    state.addLikeToTweet(state.tweetDetailModel.last, authState.userId);
-  }
+  // void addLikeToComment(String commentId) {
+  //   var state = Provider.of<FeedState>(context, listen: false);
+  //   var authState = Provider.of<AuthState>(context, listen: false);
+  //   state.addLikeToTweet(state.tweetDetailModel.last, authState.userId,1);
+  // }
 
   void openImage() async {
     Navigator.pushNamed(context, '/ImageViewPge');

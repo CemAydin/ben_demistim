@@ -48,7 +48,7 @@ class TweetBottomSheet {
             padding: EdgeInsets.only(top: 5, bottom: 0),
             height: fullHeight(context) *
                 (type == TweetType.Tweet
-                    ? (isMyTweet ? .25 : .44)
+                    ? (isMyTweet ? .50 : .44)
                     : (isMyTweet ? .38 : .52)),
             width: fullWidth(context),
             decoration: BoxDecoration(
@@ -362,46 +362,112 @@ class TweetBottomSheet {
         ),
         _widgetBottomSheetRow(
           context,
-          AppIcon.retweet,
+          AppIcon.heartEmpty,
           isEnable: true,
-          text: 'Retweet',
+          text: 'Kaç Kapak basıyorsunuz?',
           onPressed: () {
-            var state = Provider.of<FeedState>(context, listen: false);
-            var authState = Provider.of<AuthState>(context, listen: false);
-            var myUser = authState.userModel;
-            myUser = UserModel(
-                displayName: myUser.displayName ?? myUser.email.split('@')[0],
-                profilePic: myUser.profilePic,
-                userId: myUser.userId,
-                isVerified: authState.userModel.isVerified,
-                userName: authState.userModel.userName);
-            // Prepare current Tweet model to reply
-            FeedModel post = new FeedModel(
-                childRetwetkey: model.key,
-                createdAt: DateTime.now().toUtc().toString(),
-                user: myUser,
-                userId: myUser.userId);
-            state.createReTweet(post);
-            Navigator.pop(context);
+            // var state = Provider.of<FeedState>(context, listen: false);
+            // var authState = Provider.of<AuthState>(context, listen: false);
+            // var myUser = authState.userModel;
+            // myUser = UserModel(
+            //     displayName: myUser.displayName ?? myUser.email.split('@')[0],
+            //     profilePic: myUser.profilePic,
+            //     userId: myUser.userId,
+            //     isVerified: authState.userModel.isVerified,
+            //     userName: authState.userModel.userName);
+            // // Prepare current Tweet model to reply
+            // FeedModel post = new FeedModel(
+            //     childRetwetkey: model.key,
+            //     createdAt: DateTime.now().toUtc().toString(),
+            //     user: myUser,
+            //     userId: myUser.userId);
+            // state.createReTweet(post);
+            // Navigator.pop(context);
           },
         ),
-        _widgetBottomSheetRow(
-          context,
-          AppIcon.edit,
-          text: 'Retweet with comment',
-          isEnable: true,
-          onPressed: () {
-            var state = Provider.of<FeedState>(context, listen: false);
-            // Prepare current Tweet model to reply
-            state.setTweetToReply = model;
-            Navigator.pop(context);
+        SliderInNavigationBar(model:model),
 
-            /// `/ComposeTweetPage/retweet` route is used to identify that tweet is going to be retweet.
-            /// To simple reply on any `Tweet` use `ComposeTweetPage` route.
-            Navigator.of(context).pushNamed('/ComposeTweetPage/retweet');
-          },
-        )
       ],
     );
+  }
+}
+
+class SliderInNavigationBar extends StatefulWidget {
+  final FeedModel model;
+  SliderInNavigationBar({Key key, @required this.model}) : super(key: key);
+  @override
+  _SliderInNavigationBarScreenState createState() => new _SliderInNavigationBarScreenState();
+
+}
+
+class _SliderInNavigationBarScreenState extends State<SliderInNavigationBar> {
+  int _currentIndex = 0;
+
+  //List<Widget> _children;
+  int _period = 0;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Column(children: <Widget>[
+      SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          activeTrackColor: Colors.red[700],
+          inactiveTrackColor: Colors.red[100],
+          trackShape: RoundedRectSliderTrackShape(),
+          trackHeight: 4.0,
+          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
+          thumbColor: Colors.redAccent,
+          overlayColor: Colors.red.withAlpha(32),
+          overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
+          tickMarkShape: RoundSliderTickMarkShape(),
+          activeTickMarkColor: Colors.red[700],
+          inactiveTickMarkColor: Colors.red[100],
+          valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+          valueIndicatorColor: Colors.redAccent,
+          valueIndicatorTextStyle: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        child: Slider(
+            value: _period.toDouble(),
+            min: 0.0,
+            max: 10000.0,
+            divisions: 1000,
+            label: '$_period',
+            onChanged: (double value) {
+              print('OnChanged');
+              setState(() {
+                _period = value.round();
+              });
+            }),
+      ),
+      FlatButton(
+        color: Colors.orange,
+        padding: EdgeInsets.all(10.0),
+        child: Column( // Replace with a Row for horizontal icon + text
+          children: <Widget>[
+            Icon(Icons.add),
+            Text("Add")
+          ],
+        ),
+        onPressed: () {
+          var state = Provider.of<FeedState>(context, listen: false);
+          var authState = Provider.of<AuthState>(context, listen: false);
+          state.addLikeToTweet(widget.model, authState.userId, _period);
+          // Prepare current Tweet model to reply
+          state.setTweetToReply = widget.model;
+          Navigator.pop(context);
+
+          /// `/ComposeTweetPage/retweet` route is used to identify that tweet is going to be retweet.
+          /// To simple reply on any `Tweet` use `ComposeTweetPage` route.
+          //Navigator.of(context).pushNamed('/ComposeTweetPage/retweet');
+        },
+      )
+    ]);
   }
 }

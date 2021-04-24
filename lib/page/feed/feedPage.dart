@@ -65,11 +65,19 @@ class FeedPage extends StatelessWidget {
 
 class _FeedPageBody extends StatelessWidget {
   final GlobalKey<ScaffoldState> scaffoldKey;
+  final TextEditingController textController;
+  final ValueChanged<String> onSearchChanged;
 
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey;
 
-  const _FeedPageBody({Key key, this.scaffoldKey, this.refreshIndicatorKey})
+  const _FeedPageBody(
+      {Key key,
+      this.scaffoldKey,
+      this.refreshIndicatorKey,
+      this.textController,
+      this.onSearchChanged})
       : super(key: key);
+
   Widget _getUserAvatar(BuildContext context) {
     var authState = Provider.of<AuthState>(context);
     return Padding(
@@ -89,6 +97,98 @@ class _FeedPageBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var authstate = Provider.of<AuthState>(context, listen: false);
+    final List<String> _tabs = <String>["Gündem", "Ekonomi", "Eğlence", "Spor", "Siyaset"];
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Consumer<FeedState>(
+        builder: (context, state, child) {
+          final List<FeedModel> list = state.getTweetList(authstate.userModel);
+          return CustomScrollView(
+            slivers: <Widget>[
+              child,
+              state.isBusy && list == null
+                  ? SliverToBoxAdapter(
+                      child: Container(
+                        height: fullHeight(context) - 135,
+                        child: CustomScreenLoader(
+                          height: double.infinity,
+                          width: fullWidth(context),
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                    )
+                  : !state.isBusy && list == null
+                      ? SliverToBoxAdapter(
+                          child: EmptyList(
+                            'No Tweet added yet',
+                            subTitle:
+                                'When new Tweet added, they\'ll show up here \n Tap tweet button to add new',
+                          ),
+                        )
+                      : SliverList(
+                          delegate: SliverChildListDelegate(
+                            list.map(
+                              (model) {
+                                return Container(
+                                  color: Colors.white,
+                                  child: Tweet(
+                                    model: model,
+                                    trailing: TweetBottomSheet()
+                                        .tweetOptionIcon(context,
+                                            model: model,
+                                            type: TweetType.Tweet,
+                                            scaffoldKey: scaffoldKey),
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                          ),
+                        )
+            ],
+          );
+        },
+        child: SliverAppBar(
+          floating: true,
+          elevation: 0,
+          leading: IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              scaffoldKey.currentState.openDrawer();
+            },
+          ),
+          title: Container(
+              height: 50,
+              padding: EdgeInsets.symmetric(vertical: 5),
+              child: TextField(
+                onChanged: onSearchChanged,
+                controller: textController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide(width: 0, style: BorderStyle.none),
+                    borderRadius: const BorderRadius.all(
+                      const Radius.circular(25.0),
+                    ),
+                  ),
+                  hintText: 'Search..',
+                  fillColor: AppColor.extraLightGrey,
+                  filled: true,
+                  focusColor: Colors.white,
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                ),
+              )),
+          iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
+          backgroundColor: Theme.of(context).appBarTheme.color,
+          actions: [
+            _getUserAvatar(context),
+          ],
+          bottom: TabBar(
+            tabs: _tabs.map((String name) => Tab(text: name)).toList(),
+          ),
+        ),
+      ),
+    );
+
     return Consumer<FeedState>(
       builder: (context, state, child) {
         final List<FeedModel> list = state.getTweetList(authstate.userModel);
@@ -139,16 +239,45 @@ class _FeedPageBody extends StatelessWidget {
       child: SliverAppBar(
         floating: true,
         elevation: 0,
-        leading: _getUserAvatar(context),
-        title: customTitleText('Home'),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {
+            scaffoldKey.currentState.openDrawer();
+          },
+        ),
+        title: Container(
+            height: 50,
+            padding: EdgeInsets.symmetric(vertical: 5),
+            child: TextField(
+              onChanged: onSearchChanged,
+              controller: textController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(width: 0, style: BorderStyle.none),
+                  borderRadius: const BorderRadius.all(
+                    const Radius.circular(25.0),
+                  ),
+                ),
+                hintText: 'Search..',
+                fillColor: AppColor.extraLightGrey,
+                filled: true,
+                focusColor: Colors.white,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+              ),
+            )),
         iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
         backgroundColor: Theme.of(context).appBarTheme.color,
-        bottom: PreferredSize(
-          child: Container(
-            color: Colors.grey.shade200,
-            height: 1.0,
-          ),
-          preferredSize: Size.fromHeight(0.0),
+        actions: [
+          _getUserAvatar(context),
+        ],
+        bottom: TabBar(
+          tabs: [
+            Tab(text: "Tab1"),
+            Tab(text: "Tab2"),
+            Tab(text: "Tab3"),
+            Tab(text: "Tab4"),
+          ],
         ),
       ),
     );

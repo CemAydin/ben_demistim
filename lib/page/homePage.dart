@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_twitter_clone/helper/constant.dart';
 import 'package:flutter_twitter_clone/helper/enum.dart';
+import 'package:flutter_twitter_clone/helper/theme.dart';
 import 'package:flutter_twitter_clone/helper/utility.dart';
 import 'package:flutter_twitter_clone/page/feed/feedPage.dart';
 import 'package:flutter_twitter_clone/page/message/chatListPage.dart';
@@ -10,6 +12,9 @@ import 'package:flutter_twitter_clone/state/feedState.dart';
 import 'package:flutter_twitter_clone/state/notificationState.dart';
 import 'package:flutter_twitter_clone/state/searchState.dart';
 import 'package:flutter_twitter_clone/widgets/bottomMenuBar/bottomMenuBar.dart';
+import 'package:flutter_twitter_clone/widgets/customAppBar.dart';
+import 'package:flutter_twitter_clone/widgets/customWidgets.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:provider/provider.dart';
 import 'common/sidebar.dart';
 import 'notification/notificationPage.dart';
@@ -24,10 +29,16 @@ class _HomePageState extends State<HomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final refreshIndicatorKey = new GlobalKey<RefreshIndicatorState>();
   int pageIndex = 0;
+
+  PersistentTabController _controller;
+
+
+
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       var state = Provider.of<AppState>(context, listen: false);
+      _controller = PersistentTabController(initialIndex: 0);
       state.setpageIndex = 0;
       initTweets();
       initProfile();
@@ -123,6 +134,52 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+  List<Widget> _buildScreens() {
+    return [
+    FeedPage(
+      scaffoldKey: _scaffoldKey,
+      refreshIndicatorKey: refreshIndicatorKey,
+    ),
+      SearchPage(scaffoldKey: _scaffoldKey),
+      NotificationPage(scaffoldKey: _scaffoldKey),
+      ChatListPage(scaffoldKey: _scaffoldKey),
+      FeedPage(scaffoldKey: _scaffoldKey),
+    ];
+  }
+  List<PersistentBottomNavBarItem> _navBarsItems() {
+    return [
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.home),
+        title: ("Home"),
+        activeColorPrimary: TwitterColor.dodgetBlue,
+        inactiveColorPrimary: TwitterColor.bondiBlue,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.settings),
+        title: ("Settings"),
+        activeColorPrimary: TwitterColor.dodgetBlue,
+        inactiveColorPrimary: TwitterColor.bondiBlue,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.home),
+        title: ("Home"),
+        activeColorPrimary: TwitterColor.dodgetBlue,
+        inactiveColorPrimary: TwitterColor.bondiBlue,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.settings),
+        title: ("Settings"),
+        activeColorPrimary: TwitterColor.dodgetBlue,
+        inactiveColorPrimary: TwitterColor.bondiBlue,
+      ),
+      PersistentBottomNavBarItem(
+        icon: Icon(Icons.settings),
+        title: ("Settings"),
+        activeColorPrimary: TwitterColor.dodgetBlue,
+        inactiveColorPrimary: TwitterColor.bondiBlue,
+      ),
+    ];
+  }
 
   Widget _getPage(int index) {
     switch (index) {
@@ -146,7 +203,6 @@ class _HomePageState extends State<HomePage> {
         break;
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

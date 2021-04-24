@@ -31,6 +31,7 @@ class TwitterColor {
   static final Color paleSky = Color.fromRGBO(101, 119, 133, 1.0);
   static final Color ceriseRed = Color.fromRGBO(224, 36, 94, 1.0);
   static final Color paleSky50 = Color.fromRGBO(101, 118, 133, 0.5);
+  static final Color  primaryColor = Colors.yellow.shade500;
 }
 
 class AppColor{

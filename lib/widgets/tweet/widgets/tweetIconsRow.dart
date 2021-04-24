@@ -44,19 +44,20 @@ class TweetIconsRow extends StatelessWidget {
           SizedBox(
             width: 20,
           ),
-          _iconWidget(
-            context,
-            text: isTweetDetail ? '' : model.commentCount.toString(),
-            icon: AppIcon.reply,
-            iconColor: iconColor,
-            size: size ?? 20,
-            onPressed: () {
-              var state = Provider.of<FeedState>(context, listen: false);
-              state.setTweetToReply = model;
-              Navigator.of(context).pushNamed('/ComposeTweetPage');
-            },
-          ),
+          // _iconWidget(
+          //   context,
+          //   text: isTweetDetail ? '' : model.commentCount.toString(),
+          //   icon: AppIcon.reply,
+          //   iconColor: iconColor,
+          //   size: size ?? 20,
+          //   onPressed: () {
+          //     var state = Provider.of<FeedState>(context, listen: false);
+          //     state.setTweetToReply = model;
+          //     Navigator.of(context).pushNamed('/ComposeTweetPage');
+          //   },
+          // ),
           _iconWidget(context,
+              textB: "yes",
               text: isTweetDetail ? '' : model.retweetCount.toString(),
               icon: AppIcon.retweet,
               iconColor: iconColor,
@@ -64,21 +65,30 @@ class TweetIconsRow extends StatelessWidget {
             TweetBottomSheet().openRetweetbottomSheet(context,
                 type: type, model: model, scaffoldKey: scaffoldKey);
           }),
-          _iconWidget(
-            context,
-            text: isTweetDetail ? '' : model.likeCount.toString(),
-            icon: model.likeList.any((userId) => userId == authState.userId)
-                ? AppIcon.heartFill
-                : AppIcon.heartEmpty,
-            onPressed: () {
-              addLikeToTweet(context);
-            },
-            iconColor:
-                model.likeList.any((userId) => userId == authState.userId)
-                    ? iconEnableColor
-                    : iconColor,
-            size: size ?? 20,
-          ),
+          _iconWidget(context,
+              textB: "no",
+              text: isTweetDetail ? '' : model.retweetCount.toString(),
+              icon: AppIcon.heartFill,
+              iconColor: iconColor,
+              size: size ?? 20, onPressed: () {
+                TweetBottomSheet().openRetweetbottomSheet(context,
+                    type: type, model: model, scaffoldKey: scaffoldKey);
+              }),
+          // _iconWidget(
+          //   context,
+          //   text: isTweetDetail ? '' : model.likeCount.toString(),
+          //   icon: model.likeList.any((userId) => userId == authState.userId)
+          //       ? AppIcon.heartFill
+          //       : AppIcon.heartEmpty,
+          //   onPressed: () {
+          //     addLikeToTweet(context);
+          //   },
+          //   iconColor:
+          //       model.likeList.any((userId) => userId == authState.userId)
+          //           ? iconEnableColor
+          //           : iconColor,
+          //   size: size ?? 20,
+          // ),
           _iconWidget(context, text: '', icon: null, sysIcon: Icons.share,
               onPressed: () {
             shareTweet(context);
@@ -89,7 +99,7 @@ class TweetIconsRow extends StatelessWidget {
   }
 
   Widget _iconWidget(BuildContext context,
-      {String text,
+      {String textB,String text,
       int icon,
       Function onPressed,
       IconData sysIcon,
@@ -99,6 +109,15 @@ class TweetIconsRow extends StatelessWidget {
       child: Container(
         child: Row(
           children: <Widget>[
+            customText(
+              textB,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: iconColor,
+                fontSize: size - 5,
+              ),
+              context: context,
+            ),
             IconButton(
               onPressed: () {
                 if (onPressed != null) onPressed();
@@ -225,7 +244,7 @@ class TweetIconsRow extends StatelessWidget {
   void addLikeToTweet(BuildContext context) {
     var state = Provider.of<FeedState>(context, listen: false);
     var authState = Provider.of<AuthState>(context, listen: false);
-    state.addLikeToTweet(model, authState.userId);
+    state.addLikeToTweet(model, authState.userId,1);
   }
 
   void onLikeTextPressed(BuildContext context) {
